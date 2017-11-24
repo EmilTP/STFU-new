@@ -26,7 +26,6 @@ public class EventEndpoint {
     private Gson gson = new Gson();
 
     /**
-     *
      * @param token
      * @param eventId
      * @param data
@@ -46,7 +45,7 @@ public class EventEndpoint {
             event.setIdEvent(eventId);
 
             if (eventController.updateEvent(event, currentStudent)) {
-                String json = gson.toJson(event) ;
+                String json = gson.toJson(event);
                 String crypted = Crypter.encryptDecrypt(json);
 
                 Log.writeLog(getClass().getName(), this, "Event was updated", 0);
@@ -75,7 +74,6 @@ public class EventEndpoint {
     }
 
     /**
-     *
      * @param token
      * @param eventData
      * @return Responses
@@ -120,7 +118,6 @@ public class EventEndpoint {
     }
 
     /**
-     *
      * @param token
      * @param eventId
      * @param data
@@ -165,7 +162,6 @@ public class EventEndpoint {
     }
 
     /**
-     *
      * @param token
      * @return Responses
      * @throws SQLException
@@ -206,7 +202,48 @@ public class EventEndpoint {
     }
 
     /**
-     *
+     * Denne metode er taget fra Lausts repository: https://github.com/Pewtro/STFU-new/commit/d9ec9cf5d63c6cdc0ec81dc4d74d04c164b0fdf8
+     * @param token
+     * @return Responses
+     * @throws SQLException
+     */
+    @GET
+    @Path("/myEvents")
+    public Response getMyEvents(@HeaderParam("Authorization") String token) throws SQLException {
+        CurrentStudentContext student = tokenController.getStudentFromTokens(token);
+        Student currentStudent = student.getCurrentStudent();
+
+        if (currentStudent != null) {
+            try {
+                String json = gson.toJson(eventController.getMyEvents(currentStudent));
+                String crypted = Crypter.encryptDecrypt(json);
+                Log.writeLog(getClass().getName(), this, "All events fetched", 0);
+                return Response
+                        .status(200)
+                        .type("application/json")
+                        .entity(new Gson().toJson(crypted))
+                        .build();
+            } catch (Exception e) {
+                ErrorMessage message = new ErrorMessage();
+                message.setStatus(500);
+                message.setError(e.getMessage());
+                Log.writeLog(getClass().getName(), this, "Internal sever error", 2);
+                return Response
+                        .status(500)
+                        .type("application/json")
+                        .entity(new Gson().toJson(message))
+                        .build();
+            }
+        } else {
+            return Response
+                    .status(403)
+                    .type("plain/text")
+                    .entity("You are not logged in - please log in before attempting to get a list of all events")
+                    .build();
+        }
+    }
+
+    /**
      * @param token
      * @param idEvent
      * @return Responses
@@ -261,7 +298,6 @@ public class EventEndpoint {
     }
 
     /**
-     *
      * @param token
      * @param eventJson
      * @return Responses

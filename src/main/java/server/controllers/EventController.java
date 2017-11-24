@@ -62,6 +62,16 @@ public class EventController {
     }
 
     /**
+     * Denne metode er taget fra Laust repository: https://github.com/Pewtro/STFU-new/commit/d9ec9cf5d63c6cdc0ec81dc4d74d04c164b0fdf8
+     * @return my Events
+     */
+    public ArrayList<Event> getMyEvents(Student student) {
+        ArrayList getMyEvents = eventTable.getMyEvents(student);
+        eventTable.close();
+        return getMyEvents;
+    }
+
+    /**
      *
      * @param event
      * @param student
